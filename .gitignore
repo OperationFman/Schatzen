@@ -100,4 +100,4 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-dynamo/config.ts
+src/dynamo/config.ts

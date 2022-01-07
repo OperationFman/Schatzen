@@ -3,13 +3,13 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { region, secretAccessKey, accessKeyId } from "../dynamo/config";
+import { region, secretAccessKey, accessKeyId } from "./dynamo/config";
 
 import * as AWS from "aws-sdk";
 import { ConfigurationOptions } from "aws-sdk";
 
 const configuration: ConfigurationOptions = {
-  region: region,
+  region: "ap-southeast-1",
   secretAccessKey: secretAccessKey,
   accessKeyId: accessKeyId,
 };
