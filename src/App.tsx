@@ -1,17 +1,8 @@
 import React from "react";
 import "./App.css";
-import { GetDynamoData } from "./dynamo/GetDynamoData";
 
 function App() {
-  const getData = () => {
-    GetDynamoData();
-  };
-
-  return (
-    <div className="App">
-      <button onClick={() => getData()}> Fetch </button>
-    </div>
-  );
+  return <div className="App"></div>;
 }
 
 export default App;
