@@ -10,17 +10,21 @@ AWS.config.update({
 const dynamoClient = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "schatzen";
 
-const updateAllData = async (userName: string, point: number) => {
+const updateAllData = async (newData: any) => {
+  const params = {
+    TableName: TABLE_NAME,
+    Item: {...newData}
+  }
+  // Add Try/Catch
+  return await dynamoClient.put(params).promise()
+}
+
+const updateUserAndPoint = async (userName: string, point: number) => {
   const currentData = await fetchAllData()
   
   currentData[userName] = point;
 
-  const params = {
-    TableName: TABLE_NAME,
-    Item: {...currentData}
-  }
-  // Add Try/Catch
-  return await dynamoClient.put(params).promise()
+  updateAllData(currentData);
 }
 
 export const fetchAllData = async () => {
@@ -35,25 +39,40 @@ export const fetchAllData = async () => {
   }
 };
 
-export const addNewUser = async (name: string) => {
-  const newUser = name.toUpperCase()
+export const addNewUser = async (userName: string) => {
+  const upperCaseUserName = userName.toUpperCase()
   const currentData = await fetchAllData();
-  // Add to bigass key to localstorage
 
-  if (currentData.hasOwnProperty(newUser)) {
+  if (currentData.hasOwnProperty(upperCaseUserName)) {
     console.log("Name Exists!")
   } else {
-    // Add Try/Catch
-    updateAllData(newUser, -1);
+    updateUserAndPoint(upperCaseUserName, 0);
   }
 }
 
 export const updatePoint = async (userName: string, newPoint: number) => {
   const currentData = await fetchAllData();
+  const upperCaseUserName = userName.toUpperCase();
 
-  if (currentData.hasOwnProperty(userName)) {
-    return updateAllData(userName, newPoint);
+  if (currentData.hasOwnProperty(upperCaseUserName)) {
+    return updateUserAndPoint(userName, newPoint);
   } else {
     console.log('Cant update point')
   }
+}
+
+export const resetAllPoints = async () => {
+  const currentData = await fetchAllData();
+
+  for (const key in currentData) {
+    if (key !== "Users") {
+      currentData[key] = 0;
+    }
+  }
+  
+  updateAllData(currentData);
+}
+
+export const wipeAllData = async () => {
+  updateAllData({"Users": "Point"})
 }

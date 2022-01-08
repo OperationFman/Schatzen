@@ -1,16 +1,14 @@
 import React from "react";
 import "./App.css";
-import { addNewUser } from './dynamo/dynamo'
+import { fetchAllData, addNewUser, updatePoint, resetAllPoints, wipeAllData } from './dynamo/dynamo'
 
 function App() {
   const getData = async () => {
-    addNewUser("wanda")
+    resetAllPoints()
   }
 
   return <div className="App">
-
     <button onClick={getData}>Fetch</button>
-  
   </div>;
 }
 
