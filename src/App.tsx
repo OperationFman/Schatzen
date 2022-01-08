@@ -1,10 +1,10 @@
 import React from "react";
 import "./App.css";
-import { fetchAllData } from './dynamo/dynamo'
+import { addNewUser } from './dynamo/dynamo'
 
 function App() {
-  const getData = () => {
-    console.log(fetchAllData())
+  const getData = async () => {
+    addNewUser("wanda")
   }
 
   return <div className="App">

@@ -10,27 +10,50 @@ AWS.config.update({
 const dynamoClient = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "schatzen";
 
+const updateAllData = async (userName: string, point: number) => {
+  const currentData = await fetchAllData()
+  
+  currentData[userName] = point;
 
+  const params = {
+    TableName: TABLE_NAME,
+    Item: {...currentData}
+  }
+  // Add Try/Catch
+  return await dynamoClient.put(params).promise()
+}
 
-export const fetchAllData: any = async () => {
+export const fetchAllData = async () => {
   const params = {
     TableName: TABLE_NAME,
   };
   try {
     const result = await dynamoClient.scan(params).promise();
-    return result.Items;
+    return result.Items[0];
   } catch (error) {
     console.log(error)
   }
 };
 
-// const updateAllData = async (value) => {
-//   const params = {
-//     TableName: TABLE_NAME,
-//     Item: value
-//   }
-//   return await dynamoClient.put(params).promise()
-// }
+export const addNewUser = async (name: string) => {
+  const newUser = name.toUpperCase()
+  const currentData = await fetchAllData();
+  // Add to bigass key to localstorage
 
-// addOrUpdateCharacter({"Users": "Point", "Tony": 0});
-// fetchAllData()
+  if (currentData.hasOwnProperty(newUser)) {
+    console.log("Name Exists!")
+  } else {
+    // Add Try/Catch
+    updateAllData(newUser, -1);
+  }
+}
+
+export const updatePoint = async (userName: string, newPoint: number) => {
+  const currentData = await fetchAllData();
+
+  if (currentData.hasOwnProperty(userName)) {
+    return updateAllData(userName, newPoint);
+  } else {
+    console.log('Cant update point')
+  }
+}
