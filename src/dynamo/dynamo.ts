@@ -10,20 +10,18 @@ AWS.config.update({
 const dynamoClient = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "schatzen";
 
+
 const updateAllData = async (newData: any) => {
   const params = {
     TableName: TABLE_NAME,
     Item: {...newData}
   }
-  // Add Try/Catch
-  return await dynamoClient.put(params).promise()
+  return await dynamoClient.put(params).promise() // Add Try/Catch
 }
 
 const updateUserAndPoint = async (userName: string, point: number) => {
   const currentData = await fetchAllData()
-  
   currentData[userName] = point;
-
   updateAllData(currentData);
 }
 
@@ -42,7 +40,6 @@ export const fetchAllData = async () => {
 export const addNewUser = async (userName: string) => {
   const upperCaseUserName = userName.toUpperCase()
   const currentData = await fetchAllData();
-
   if (currentData.hasOwnProperty(upperCaseUserName)) {
     console.log("Name Exists!")
   } else {
@@ -53,7 +50,6 @@ export const addNewUser = async (userName: string) => {
 export const updatePoint = async (userName: string, newPoint: number) => {
   const currentData = await fetchAllData();
   const upperCaseUserName = userName.toUpperCase();
-
   if (currentData.hasOwnProperty(upperCaseUserName)) {
     return updateUserAndPoint(userName, newPoint);
   } else {
@@ -63,13 +59,11 @@ export const updatePoint = async (userName: string, newPoint: number) => {
 
 export const resetAllPoints = async () => {
   const currentData = await fetchAllData();
-
   for (const key in currentData) {
     if (key !== "Users") {
       currentData[key] = 0;
     }
   }
-  
   updateAllData(currentData);
 }
 

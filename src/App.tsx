@@ -1,10 +1,11 @@
 import React from "react";
 import "./App.css";
-import { fetchAllData, addNewUser, updatePoint, resetAllPoints, wipeAllData } from './dynamo/dynamo'
+import { fetchAllData, addNewUser, updatePoint, resetAllPoints, wipeAllData } from './dynamo/Dynamo'
 
 function App() {
   const getData = async () => {
-    resetAllPoints()
+    const result = await fetchAllData()
+    console.log(result)
   }
 
   return <div className="App">
