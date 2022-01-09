@@ -1,4 +1,8 @@
-import { AWS_ACCESS_KEY, AWS_DEFAULT_REGION, AWS_SECRET_ACCESS_KEY } from './config';
+import {
+  AWS_ACCESS_KEY,
+  AWS_DEFAULT_REGION,
+  AWS_SECRET_ACCESS_KEY,
+} from "./keys";
 const AWS = require("aws-sdk");
 
 AWS.config.update({
@@ -13,10 +17,10 @@ const TABLE_NAME = "schatzen";
 export const updateAllDynamoTableData = async (newData: any) => {
   const params = {
     TableName: TABLE_NAME,
-    Item: {...newData}
-  }
-  return await dynamoClient.put(params).promise() // Add Try/Catch
-}
+    Item: { ...newData },
+  };
+  return await dynamoClient.put(params).promise(); // Add Try/Catch
+};
 
 export const fetchAllDynamoTableData = async () => {
   const params = {
@@ -26,7 +30,6 @@ export const fetchAllDynamoTableData = async () => {
     const result = await dynamoClient.scan(params).promise();
     return result.Items[0];
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
-
