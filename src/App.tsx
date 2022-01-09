@@ -1,10 +1,11 @@
 import React from "react";
 import "./App.css";
-import { fetchAllData, addNewUser, updatePoint, resetAllPoints, wipeAllData } from './dynamo/Dynamo'
+import { fetchAllDynamoTableData } from './db/Dynamo'
+import { addNewUser, updatePoint, resetAllPoints, wipeAllData } from "./db/DataService";
 
 function App() {
   const getData = async () => {
-    const result = await fetchAllData()
+    const result = await addNewUser("green lantern")
     console.log(result)
   }
 
