@@ -1,28 +1,37 @@
-import { fetchAllDynamoTableData } from './Dynamo'
-import { test, addNewUser, updatePoint, resetAllPoints, wipeAllData } from "./DataService";
+import {
+  test,
+  test2,
+  addNewUser,
+  updatePoint,
+  resetAllPoints,
+  wipeAllData,
+} from "./DataService";
 
-describe('Dynamo', () => {
+jest.mock("./Dynamo");
 
-    jest.mock('./Dynamo')
+describe("Dynamo", () => {
+  describe("fetchAllTableData", () => {
+    it("Correctly scans and fetches all data from the table", async () => {
+      // Only to show this is working, swap it out for the real function in DataService
+      const expectedResult = {
+        Items: [
+          {
+            "TONY STARK": 3,
+            THOR: 5,
+            "STEVE ROGERS": 8,
+            Users: "Point",
+          },
+        ],
+      };
 
-    describe('updateUserAndPoint', () => {
-        it('Correctly updates the db with a user and point', async () => {
-            jest.mock('./Dynamo')
-            
-            const response = {
-                "Items": [{
-                        "TONY STARK": 0,
-                        "THOR": 0,
-                        "STEVE ROGERS": 0,
-                        "Users": "Point"
-                    }],
-            }
+      const result = await test();
+      expect(result).toEqual(expectedResult);
+    });
+  });
 
-            const fetchAllDynamoTableData = jest.fn()
-            fetchAllDynamoTableData.mockImplementationOnce(() => {return "blah"})
-
-            const result = await test()
-            expect(result).toEqual(123);
-        })
-    })
-})
+  describe("updateAllTableData", () => {
+    it("correctly updates the table", async () => {
+      // Figure out how to spy on the update
+    });
+  });
+});

@@ -22,7 +22,7 @@ export const updateAllDynamoTableData = async (newData: any) => {
   return await dynamoClient.put(params).promise(); // Add Try/Catch
 };
 
-export const fetchAllDynamoTableData = async () => {
+export const fetchAllTableData = async () => {
   const params = {
     TableName: TABLE_NAME,
   };

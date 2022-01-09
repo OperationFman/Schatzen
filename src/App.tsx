@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { fetchAllDynamoTableData } from './db/Dynamo'
+import { fetchAllTableData } from './db/Dynamo'
 import { addNewUser, updatePoint, resetAllPoints, wipeAllData } from "./db/DataService";
 
 function App() {
