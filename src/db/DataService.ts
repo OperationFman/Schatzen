@@ -47,5 +47,12 @@ export const resetAllPoints = async () => {
 };
 
 export const wipeAllData = async () => {
-  updateAllTableData({ Users: "Point" });
+  const response = updateAllTableData({ Users: "Point" });
+
+  console.log(response);
+
+  if (response.status === 500) {
+    console.log("Error: Could not wipe data");
+  }
+  return response;
 };
