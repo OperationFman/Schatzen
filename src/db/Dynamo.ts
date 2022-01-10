@@ -19,7 +19,10 @@ export const updateAllTableData = async (newData: any) => {
     TableName: TABLE_NAME,
     Item: { ...newData },
   };
-  return await dynamoClient.put(params).promise(); // Add Try/Catch
+  const result = await dynamoClient.put(params).promise();
+
+  // add try/cacth
+  return { status: 200, ...result };
 };
 
 export const fetchAllTableData = async () => {
@@ -28,10 +31,9 @@ export const fetchAllTableData = async () => {
   };
   try {
     const result = await dynamoClient.scan(params).promise();
-    return result.Items[0];
+    const test = { status: 200, ...result.Items[0] };
+    return test;
   } catch (error) {
     console.log(error);
   }
 };
-
-export default updateAllTableData;

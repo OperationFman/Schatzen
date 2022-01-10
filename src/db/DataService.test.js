@@ -6,38 +6,42 @@ import {
   resetAllPoints,
   wipeAllData,
 } from "./DataService";
-import { updateAllTableData } from "./Dynamo";
-
-jest.mock("./Dynamo");
+import * as Database from "./Dynamo";
 
 describe("Dynamo", () => {
-  describe("fetchAllTableData", () => {
-    it("Correctly scans and fetches all data from the table", async () => {
-      // Only to show this is working, swap it out for the real function in DataService
-      const expectedResult = {
-        Items: [
-          {
-            "TONY STARK": 3,
-            THOR: 5,
-            "STEVE ROGERS": 8,
-            Users: "Point",
-          },
-        ],
-      };
+  describe("mock tests", () => {
+    const testData = {
+      Items: [
+        {
+          Users: "Point",
+          THOR: 3,
+          "TONY STARK": 5,
+          "STEVE ROGERS": 8,
+        },
+      ],
+    };
+    it("Correctly fetches all data from the mocked table", async () => {
+      const spy = jest
+        .spyOn(Database, "fetchAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
 
       const result = await test();
-      expect(result).toEqual(expectedResult);
+
+      expect(spy).toHaveBeenCalled();
+      expect(result).toEqual({ status: 200, ...testData });
     });
-  });
 
-  describe("updateAllTableData", () => {
-    it("correctly updates the table", async () => {
-      const func = jest.spyOn(updateAllTableData, "updateAllTableData");
+    it("Correctly updates the mocked table", async () => {
+      const spy = jest
+        .spyOn(Database, "updateAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
 
-      const result = await test2({ blah: "blah" });
+      const result = await test2(testData);
 
-      expect(func).toHaveBeenCalled();
-      expect(result).toBeTruthy();
+      expect(result).toEqual({ status: 200, ...testData });
+      expect(spy).toHaveBeenCalledWith(testData);
+
+      spy.mockRestore();
     });
   });
 });
