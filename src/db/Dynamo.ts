@@ -14,7 +14,7 @@ AWS.config.update({
 const dynamoClient = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "schatzen";
 
-export const updateAllDynamoTableData = async (newData: any) => {
+export const updateAllTableData = async (newData: any) => {
   const params = {
     TableName: TABLE_NAME,
     Item: { ...newData },
@@ -33,3 +33,5 @@ export const fetchAllTableData = async () => {
     console.log(error);
   }
 };
+
+export default updateAllTableData;

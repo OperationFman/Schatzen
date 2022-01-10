@@ -1,4 +1,4 @@
-import { fetchAllTableData, updateAllDynamoTableData } from "./Dynamo";
+import { fetchAllTableData, updateAllTableData } from "./Dynamo";
 
 export const test = async () => {
   const doStuff = await fetchAllTableData();
@@ -6,14 +6,14 @@ export const test = async () => {
 };
 
 export const test2 = async (data: any) => {
-  const doStuff = await updateAllDynamoTableData(data);
+  const doStuff = await updateAllTableData(data);
   return doStuff;
 };
 
-const updateUserAndPoint = async (userName: string, point: number) => {
+export const updateUserAndPoint = async (userName: string, point: number) => {
   const currentData = await fetchAllTableData();
   currentData[userName] = point;
-  updateAllDynamoTableData(currentData);
+  updateAllTableData(currentData);
 };
 
 export const addNewUser = async (userName: string) => {
@@ -43,9 +43,9 @@ export const resetAllPoints = async () => {
       currentData[key] = 0;
     }
   }
-  updateAllDynamoTableData(currentData);
+  updateAllTableData(currentData);
 };
 
 export const wipeAllData = async () => {
-  updateAllDynamoTableData({ Users: "Point" });
+  updateAllTableData({ Users: "Point" });
 };

@@ -6,6 +6,7 @@ import {
   resetAllPoints,
   wipeAllData,
 } from "./DataService";
+import { updateAllTableData } from "./Dynamo";
 
 jest.mock("./Dynamo");
 
@@ -31,7 +32,12 @@ describe("Dynamo", () => {
 
   describe("updateAllTableData", () => {
     it("correctly updates the table", async () => {
-      // Figure out how to spy on the update
+      const func = jest.spyOn(updateAllTableData, "updateAllTableData");
+
+      const result = await test2({ blah: "blah" });
+
+      expect(func).toHaveBeenCalled();
+      expect(result).toBeTruthy();
     });
   });
 });
