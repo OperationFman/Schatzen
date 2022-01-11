@@ -26,6 +26,7 @@ export const updateAllTableData = async (newData: any) => {
   } catch (error) {
     return { status: 500 };
   }
+  // TODO Create Return type
 };
 
 export const fetchAllTableData = async () => {
@@ -38,4 +39,5 @@ export const fetchAllTableData = async () => {
   } catch (error) {
     return { status: 500 };
   }
+  // TODO Create Return type
 };

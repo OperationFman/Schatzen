@@ -9,6 +9,10 @@ import {
 import * as Database from "./Dynamo";
 
 describe("Dynamo", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   const testData = {
     Items: [
       {
@@ -46,15 +50,28 @@ describe("Dynamo", () => {
   });
 
   describe("wipeAllData", () => {
-    // it(works)
-    // Setup mock for updateAllTableData, it returns {status: 200 + the testData}
-    // call wipeAllData
-    // Assert response contains status 500
-    // Assert response contains testData
-    //it(error)
-    // Setup mock for updateAllTableData, it returns {status: 500}
-    // call wipeAllData
-    // Assert response contains status 500
-    // Assert console.log was called with an error message
+    it("Correctly wipes db data with status 200", async () => {
+      jest
+        .spyOn(Database, "updateAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
+
+      const result = await wipeAllData();
+
+      expect(result.status).toEqual(200);
+      expect(result.Items[0]).toEqual(testData.Items[0]);
+    });
+
+    it("Returns a status 500 and console logs an error", async () => {
+      jest
+        .spyOn(Database, "updateAllTableData")
+        .mockResolvedValue({ status: 500 });
+
+      const result = await wipeAllData();
+
+      expect(result.status).toEqual(500);
+      expect(result.error).toEqual("Error: Failed to Reset the Database");
+    });
   });
+
+  describe("addNewUser", () => {});
 });
