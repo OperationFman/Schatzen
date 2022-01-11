@@ -5,6 +5,7 @@ import {
   updatePoint,
   resetAllPoints,
   wipeAllData,
+  updateUserAndPoint,
 } from "./DataService";
 import * as Database from "./Dynamo";
 
@@ -73,5 +74,19 @@ describe("Dynamo", () => {
     });
   });
 
-  describe("addNewUser", () => {});
+  describe("updateUserAndPoint", () => {
+    it("Inserts a user with score to the database", async () => {
+      jest
+        .spyOn(Database, "fetchAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
+
+      jest
+        .spyOn(Database, "updateAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
+
+      const result = await updateUserAndPoint("NEW USER", 13);
+
+      expect(result).toEqual({ status: 200, ...testData, "NEW USER": 13 });
+    });
+  });
 });

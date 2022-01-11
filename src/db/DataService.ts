@@ -13,7 +13,13 @@ export const test2 = async (data: any) => {
 export const updateUserAndPoint = async (userName: string, point: number) => {
   const currentData = await fetchAllTableData();
   currentData[userName] = point;
-  updateAllTableData(currentData);
+  const response = await updateAllTableData(currentData);
+
+  if (response.status === 200) {
+    return currentData;
+  }
+  response["error"] = "Error: Failed to Reset the Database";
+  return response;
 };
 
 export const addNewUser = async (userName: string) => {
@@ -22,7 +28,7 @@ export const addNewUser = async (userName: string) => {
   if (currentData.hasOwnProperty(upperCaseUserName)) {
     console.log("Name Exists!");
   } else {
-    updateUserAndPoint(upperCaseUserName, 0);
+    return await updateUserAndPoint(upperCaseUserName, 0);
   }
 };
 
@@ -49,9 +55,9 @@ export const resetAllPoints = async () => {
 export const wipeAllData = async () => {
   const response = await updateAllTableData({ Users: "Point" });
 
-  if (response.status === 500) {
-    response["error"] = "Error: Failed to Reset the Database";
+  if (response.status === 200) {
     return response;
   }
+  response["error"] = "Error: Failed to Reset the Database";
   return response;
 };
