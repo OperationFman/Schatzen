@@ -9,7 +9,7 @@ import {
 } from "./DataService";
 import * as Database from "./Dynamo";
 
-describe("Dynamo", () => {
+describe("Data Service", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -80,13 +80,72 @@ describe("Dynamo", () => {
         .spyOn(Database, "fetchAllTableData")
         .mockResolvedValue({ status: 200, ...testData });
 
+      const mockDatabase = jest
+        .spyOn(Database, "updateAllTableData")
+        .mockResolvedValue({ status: 200, ...testData, "NEW USER": 13 });
+
+      await updateUserAndPoint("NEW USER", 13);
+
+      expect(mockDatabase).toHaveBeenCalledWith({
+        status: 200,
+        ...testData,
+        "NEW USER": 13,
+      });
+    });
+
+    it("Returns an error if the user/score can't be updated", async () => {
+      jest
+        .spyOn(Database, "fetchAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
+
+      jest
+        .spyOn(Database, "updateAllTableData")
+        .mockResolvedValue({ status: 500, ...testData });
+
+      const result = await updateUserAndPoint("NEW USER", 13);
+
+      expect(result).toEqual({
+        status: 500,
+        error: "Error: Failed to Update the Database",
+        ...testData,
+      });
+      expect(result.Items).not.toContain({ "NEW USER": 13 });
+    });
+  });
+
+  describe("addNewUser", () => {
+    it("Adds a new user in uppercase with 0 score", async () => {
+      jest
+        .spyOn(Database, "fetchAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
+
+      const mockDatabase = jest.spyOn(Database, "updateAllTableData");
+
+      await addNewUser("sPiDeR MaN");
+
+      expect(mockDatabase).toHaveBeenCalledWith({
+        status: 200,
+        ...testData,
+        "SPIDER MAN": 0,
+      });
+    });
+
+    it("Does NOT add a new user if they already exist", async () => {
+      jest
+        .spyOn(Database, "fetchAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
+
       jest
         .spyOn(Database, "updateAllTableData")
         .mockResolvedValue({ status: 200, ...testData });
 
-      const result = await updateUserAndPoint("NEW USER", 13);
+      const result = await addNewUser("Tony Stark");
 
-      expect(result).toEqual({ status: 200, ...testData, "NEW USER": 13 });
+      expect(result).toEqual({
+        status: 200,
+        ...testData,
+        error: "Error: Name Already Exists",
+      });
     });
   });
 });

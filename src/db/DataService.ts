@@ -12,21 +12,30 @@ export const test2 = async (data: any) => {
 
 export const updateUserAndPoint = async (userName: string, point: number) => {
   const currentData = await fetchAllTableData();
+
+  if (currentData.status === 500) {
+    currentData["error"] = "Error: Failed to Read the Database";
+    return currentData;
+  }
+
   currentData[userName] = point;
   const response = await updateAllTableData(currentData);
 
-  if (response.status === 200) {
-    return currentData;
+  if (response.status === 500) {
+    response["error"] = "Error: Failed to Update the Database";
+    console.log(response);
+    return response;
   }
-  response["error"] = "Error: Failed to Reset the Database";
   return response;
 };
 
 export const addNewUser = async (userName: string) => {
   const upperCaseUserName = userName.toUpperCase();
   const currentData = await fetchAllTableData();
-  if (currentData.hasOwnProperty(upperCaseUserName)) {
-    console.log("Name Exists!");
+
+  if (currentData.Items[0].hasOwnProperty(upperCaseUserName)) {
+    currentData["error"] = "Error: Name Already Exists";
+    return currentData;
   } else {
     return await updateUserAndPoint(upperCaseUserName, 0);
   }
