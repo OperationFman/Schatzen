@@ -6,12 +6,13 @@ import {
   updatePoint,
   resetAllPoints,
   wipeAllData,
+  updateUserAndPoint,
 } from "./db/DataService";
 
 function App() {
   const getData = async () => {
     const result = await updatePoint("BATMAN", 123);
-    console.log(result);
+    console.log(result)
   };
 
   return (

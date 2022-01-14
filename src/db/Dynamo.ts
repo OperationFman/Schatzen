@@ -1,3 +1,4 @@
+import { UserPayload } from './DataServiceModels';
 import {
   AWS_ACCESS_KEY,
   AWS_DEFAULT_REGION,
@@ -14,30 +15,30 @@ AWS.config.update({
 const dynamoClient = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "schatzen";
 
-export const updateAllTableData = async (newData: any) => {
-  const params = {
-    TableName: TABLE_NAME,
-    Item: { ...newData },
-  };
 
-  try {
-    const result = await dynamoClient.put(params).promise();
-    return { status: 200, ...result };
-  } catch (error) {
-    return { status: 500 };
-  }
-  // TODO Create Return type
-};
-
-export const fetchAllTableData = async () => {
+export const fetchAllTableData = async (): Promise<UserPayload> => {
   const params = {
     TableName: TABLE_NAME,
   };
   try {
     const result = await dynamoClient.scan(params).promise();
-    return result.Items[0];
+    const format = result.Items[0];
+    return { Items: format, error: undefined}
   } catch (error) {
-    return { status: 500 };
+    return { Items: undefined, error: "Could Not Fetch From Database" };
   }
-  // TODO Create Return type
+};
+
+export const updateAllTableData = async (newData: UserPayload): Promise<UserPayload> => {
+  const params = {
+    TableName: TABLE_NAME,
+    Item: { ...newData.Items },
+  };
+
+  try {
+    await dynamoClient.put(params).promise();
+    return await fetchAllTableData();
+  } catch (error) {
+    return { Items: undefined, error: "Could Not Update Database" };
+  }
 };
