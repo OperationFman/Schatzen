@@ -1,3 +1,4 @@
+import { isPropertyAssignment } from "typescript";
 import {
   test,
   test2,
@@ -10,6 +11,10 @@ import {
 import * as Database from "./Dynamo";
 
 describe("Data Service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -33,14 +38,14 @@ describe("Data Service", () => {
       .spyOn(Database, "updateAllTableData")
       .mockResolvedValue({ status: 200, ...testData });
 
-    it("Correctly fetches all data from the mocked table", async () => {
+    it("Fetches all data from the mocked table", async () => {
       const result = await test();
 
       expect(mockFetchAllTableData).toHaveBeenCalled();
       expect(result).toEqual({ status: 200, ...testData });
     });
 
-    it("Correctly updates the mocked table", async () => {
+    it("Updates the mocked table", async () => {
       const result = await test2(testData);
 
       expect(result).toEqual({ status: 200, ...testData });
@@ -51,7 +56,7 @@ describe("Data Service", () => {
   });
 
   describe("wipeAllData", () => {
-    it("Correctly wipes db data with status 200", async () => {
+    it("Wipes db data with status 200", async () => {
       jest
         .spyOn(Database, "updateAllTableData")
         .mockResolvedValue({ status: 200, ...testData });
@@ -74,6 +79,34 @@ describe("Data Service", () => {
     });
   });
 
+  describe("updatePoint", () => {
+    it("Updates score for an existing user", async () => {
+      jest
+        .spyOn(Database, "fetchAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
+
+      const mockDatabase = jest
+        .spyOn(Database, "updateAllTableData")
+        .mockResolvedValue({ status: 200, ...testData });
+
+      await updatePoint("THOR", 8);
+
+      const expectedResult = {
+        Items: [
+          {
+            Users: "Point",
+            THOR: 8,
+            "TONY STARK": 5,
+            "STEVE ROGERS": 8,
+          },
+        ],
+        status: 200,
+      };
+
+      expect(mockDatabase).toHaveBeenCalledWith(expectedResult);
+    });
+  });
+
   describe("updateUserAndPoint", () => {
     it("Inserts a user with score to the database", async () => {
       jest
@@ -82,15 +115,24 @@ describe("Data Service", () => {
 
       const mockDatabase = jest
         .spyOn(Database, "updateAllTableData")
-        .mockResolvedValue({ status: 200, ...testData, "NEW USER": 13 });
+        .mockResolvedValue({ status: 200, ...testData });
 
       await updateUserAndPoint("NEW USER", 13);
 
-      expect(mockDatabase).toHaveBeenCalledWith({
+      const expected = {
+        Items: [
+          {
+            Users: "Point",
+            "NEW USER": 13,
+            THOR: 3,
+            "TONY STARK": 5,
+            "STEVE ROGERS": 8,
+          },
+        ],
         status: 200,
-        ...testData,
-        "NEW USER": 13,
-      });
+      };
+
+      expect(mockDatabase).toHaveBeenCalledWith(expected);
     });
 
     it("Returns an error if the user/score can't be updated", async () => {
@@ -119,15 +161,24 @@ describe("Data Service", () => {
         .spyOn(Database, "fetchAllTableData")
         .mockResolvedValue({ status: 200, ...testData });
 
-      const mockDatabase = jest.spyOn(Database, "updateAllTableData");
+      const mockoDatabase = jest.spyOn(Database, "updateAllTableData");
 
       await addNewUser("sPiDeR MaN");
 
-      expect(mockDatabase).toHaveBeenCalledWith({
+      const expectedResult = {
+        Items: [
+          {
+            Users: "Point",
+            "SPIDER MAN": 0,
+            THOR: 3,
+            "TONY STARK": 5,
+            "STEVE ROGERS": 8,
+          },
+        ],
         status: 200,
-        ...testData,
-        "SPIDER MAN": 0,
-      });
+      };
+
+      expect(mockoDatabase).toHaveBeenCalledWith(expectedResult);
     });
 
     it("Does NOT add a new user if they already exist", async () => {
@@ -142,7 +193,7 @@ describe("Data Service", () => {
       const result = await addNewUser("Tony Stark");
 
       expect(result).toEqual({
-        status: 200,
+        status: 500,
         ...testData,
         error: "Error: Name Already Exists",
       });

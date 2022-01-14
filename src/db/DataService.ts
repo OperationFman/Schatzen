@@ -18,12 +18,12 @@ export const updateUserAndPoint = async (userName: string, point: number) => {
     return currentData;
   }
 
-  currentData[userName] = point;
+  currentData.Items[0][userName] = point;
+
   const response = await updateAllTableData(currentData);
 
   if (response.status === 500) {
     response["error"] = "Error: Failed to Update the Database";
-    console.log(response);
     return response;
   }
   return response;
@@ -35,6 +35,7 @@ export const addNewUser = async (userName: string) => {
 
   if (currentData.Items[0].hasOwnProperty(upperCaseUserName)) {
     currentData["error"] = "Error: Name Already Exists";
+    currentData.status = 500;
     return currentData;
   } else {
     return await updateUserAndPoint(upperCaseUserName, 0);
@@ -43,11 +44,14 @@ export const addNewUser = async (userName: string) => {
 
 export const updatePoint = async (userName: string, newPoint: number) => {
   const currentData = await fetchAllTableData();
-  const upperCaseUserName = userName.toUpperCase();
-  if (currentData.hasOwnProperty(upperCaseUserName)) {
-    return updateUserAndPoint(userName, newPoint);
+
+  if (!currentData.Items[0].hasOwnProperty(userName)) {
+    currentData["error"] = "Error: Could Not Update Point, Name Does Not Exist";
+    currentData.status = 500;
+    return currentData;
   } else {
-    console.log("Cant update point");
+    currentData.Items[0][userName] = newPoint;
+    return await updateUserAndPoint(userName, newPoint);
   }
 };
 
