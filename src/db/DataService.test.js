@@ -1,7 +1,4 @@
-import { isPropertyAssignment } from "typescript";
 import {
-  test,
-  test2,
   addNewUser,
   updatePoint,
   resetAllPoints,
@@ -11,66 +8,48 @@ import {
 import * as Database from "./Dynamo";
 
 describe("Data Service", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  const testData = {
-    Items: [
-      {
-        Users: "Point",
-        THOR: 3,
-        "TONY STARK": 5,
-        "STEVE ROGERS": 8,
-      },
-    ],
+  const mockedFetchDatabase = (overrides) => {
+    jest.spyOn(Database, "fetchAllTableData").mockResolvedValue({
+      status: 200,
+      Items: [
+        {
+          Users: "Point",
+          THOR: 3,
+          "TONY STARK": 5,
+          "STEVE ROGERS": 8,
+        },
+      ],
+      ...overrides,
+    });
   };
-  describe("mock tests", () => {
-    const mockFetchAllTableData = jest
-      .spyOn(Database, "fetchAllTableData")
-      .mockResolvedValue({ status: 200, ...testData });
 
-    const mockUpdateAllTableData = jest
-      .spyOn(Database, "updateAllTableData")
-      .mockResolvedValue({ status: 200, ...testData });
-
-    it("Fetches all data from the mocked table", async () => {
-      const result = await test();
-
-      expect(mockFetchAllTableData).toHaveBeenCalled();
-      expect(result).toEqual({ status: 200, ...testData });
+  const mockedDatabase = (overrides) =>
+    jest.spyOn(Database, "updateAllTableData").mockResolvedValue({
+      status: 200,
+      Items: [
+        {
+          Users: "Point",
+          THOR: 3,
+          "TONY STARK": 5,
+          "STEVE ROGERS": 8,
+        },
+      ],
+      ...overrides,
     });
 
-    it("Updates the mocked table", async () => {
-      const result = await test2(testData);
-
-      expect(result).toEqual({ status: 200, ...testData });
-      expect(mockUpdateAllTableData).toHaveBeenCalledWith(testData);
-
-      mockUpdateAllTableData.mockRestore();
-    });
-  });
+  beforeEach(() => jest.resetAllMocks());
 
   describe("wipeAllData", () => {
     it("Wipes db data with status 200", async () => {
-      jest
-        .spyOn(Database, "updateAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
+      const mockDatabase = mockedDatabase();
 
-      const result = await wipeAllData();
+      await wipeAllData();
 
-      expect(result.status).toEqual(200);
-      expect(result.Items[0]).toEqual(testData.Items[0]);
+      expect(mockDatabase).toHaveBeenLastCalledWith({ Users: "Point" });
     });
 
-    it("Returns a status 500 and console logs an error", async () => {
-      jest
-        .spyOn(Database, "updateAllTableData")
-        .mockResolvedValue({ status: 500 });
+    it("Returns status 500 and error message if wipe fails", async () => {
+      mockedDatabase({ status: 500 });
 
       const result = await wipeAllData();
 
@@ -81,13 +60,8 @@ describe("Data Service", () => {
 
   describe("updatePoint", () => {
     it("Updates score for an existing user", async () => {
-      jest
-        .spyOn(Database, "fetchAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
-
-      const mockDatabase = jest
-        .spyOn(Database, "updateAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
+      mockedFetchDatabase();
+      const mockDatabase = mockedDatabase();
 
       await updatePoint("THOR", 8);
 
@@ -103,19 +77,26 @@ describe("Data Service", () => {
         status: 200,
       };
 
-      expect(mockDatabase).toHaveBeenCalledWith(expectedResult);
+      expect(mockDatabase).toHaveBeenLastCalledWith(expectedResult);
+    });
+
+    it("Returns an error if name doesn't exist", async () => {
+      mockedFetchDatabase();
+      mockedDatabase();
+
+      const result = await updatePoint("DARRYL", 3);
+
+      expect(result.status).toEqual(500);
+      expect(result.error).toEqual(
+        "Error: Could Not Update Point, Name Does Not Exist"
+      );
     });
   });
 
   describe("updateUserAndPoint", () => {
     it("Inserts a user with score to the database", async () => {
-      jest
-        .spyOn(Database, "fetchAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
-
-      const mockDatabase = jest
-        .spyOn(Database, "updateAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
+      mockedFetchDatabase();
+      const mockDatabase = mockedDatabase();
 
       await updateUserAndPoint("NEW USER", 13);
 
@@ -132,36 +113,37 @@ describe("Data Service", () => {
         status: 200,
       };
 
-      expect(mockDatabase).toHaveBeenCalledWith(expected);
+      expect(mockDatabase).toHaveBeenLastCalledWith(expected);
     });
 
     it("Returns an error if the user/score can't be updated", async () => {
-      jest
-        .spyOn(Database, "fetchAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
-
-      jest
-        .spyOn(Database, "updateAllTableData")
-        .mockResolvedValue({ status: 500, ...testData });
+      mockedFetchDatabase();
+      mockedDatabase({ status: 500 });
 
       const result = await updateUserAndPoint("NEW USER", 13);
 
-      expect(result).toEqual({
+      const expected = {
         status: 500,
         error: "Error: Failed to Update the Database",
-        ...testData,
-      });
+        Items: [
+          {
+            Users: "Point",
+            THOR: 3,
+            "TONY STARK": 5,
+            "STEVE ROGERS": 8,
+          },
+        ],
+      };
+
+      expect(result).toEqual(expected);
       expect(result.Items).not.toContain({ "NEW USER": 13 });
     });
   });
 
   describe("addNewUser", () => {
     it("Adds a new user in uppercase with 0 score", async () => {
-      jest
-        .spyOn(Database, "fetchAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
-
-      const mockoDatabase = jest.spyOn(Database, "updateAllTableData");
+      mockedFetchDatabase();
+      const mockDatabase = mockedDatabase();
 
       await addNewUser("sPiDeR MaN");
 
@@ -178,25 +160,52 @@ describe("Data Service", () => {
         status: 200,
       };
 
-      expect(mockoDatabase).toHaveBeenCalledWith(expectedResult);
+      expect(mockDatabase).toHaveBeenLastCalledWith(expectedResult);
     });
 
     it("Does NOT add a new user if they already exist", async () => {
-      jest
-        .spyOn(Database, "fetchAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
-
-      jest
-        .spyOn(Database, "updateAllTableData")
-        .mockResolvedValue({ status: 200, ...testData });
+      mockedFetchDatabase();
+      mockedDatabase();
 
       const result = await addNewUser("Tony Stark");
 
-      expect(result).toEqual({
+      const expected = {
         status: 500,
-        ...testData,
+        Items: [
+          {
+            Users: "Point",
+            THOR: 3,
+            "TONY STARK": 5,
+            "STEVE ROGERS": 8,
+          },
+        ],
         error: "Error: Name Already Exists",
-      });
+      };
+
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("resetAllPoints", () => {
+    it("Sets every players points to 0", async () => {
+      mockedFetchDatabase();
+      const mockDatabase = mockedDatabase();
+
+      await resetAllPoints();
+
+      const expected = {
+        status: 200,
+        Items: [
+          {
+            Users: "Point",
+            THOR: 0,
+            "TONY STARK": 0,
+            "STEVE ROGERS": 0,
+          },
+        ],
+      };
+
+      expect(mockDatabase).toHaveBeenLastCalledWith(expected);
     });
   });
 });

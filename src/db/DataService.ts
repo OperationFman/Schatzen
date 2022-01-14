@@ -1,15 +1,5 @@
 import { fetchAllTableData, updateAllTableData } from "./Dynamo";
 
-export const test = async () => {
-  const doStuff = await fetchAllTableData();
-  return doStuff;
-};
-
-export const test2 = async (data: any) => {
-  const doStuff = await updateAllTableData(data);
-  return doStuff;
-};
-
 export const updateUserAndPoint = async (userName: string, point: number) => {
   const currentData = await fetchAllTableData();
 
@@ -57,12 +47,13 @@ export const updatePoint = async (userName: string, newPoint: number) => {
 
 export const resetAllPoints = async () => {
   const currentData = await fetchAllTableData();
-  for (const key in currentData) {
+
+  for (const key in currentData.Items[0]) {
     if (key !== "Users") {
-      currentData[key] = 0;
+      currentData.Items[0][key] = 0;
     }
   }
-  updateAllTableData(currentData);
+  return updateAllTableData(currentData);
 };
 
 export const wipeAllData = async () => {
