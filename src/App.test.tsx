@@ -1,7 +1,20 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, cleanup, screen } from "@testing-library/react";
 import App from "./App";
 
-test("renders learn react link", () => {
-  expect(true).toEqual(true);
+describe("App", () => {
+  it("Renders HOST / SPECTATE button correctly", () => {
+    render(<App />);
+
+    expect(screen.getByText("HOST / SPECTATE")).toBeTruthy();
+  });
+
+  it("Renders PLAY button correctly", () => {
+    render(<App />);
+
+    expect(screen.getByText("PLAY")).toBeTruthy();
+  });
+
+  it("Initializes Play button as disabled", () => {
+    expect(true).toEqual(true);
+  });
 });
