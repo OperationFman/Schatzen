@@ -4,39 +4,35 @@ import {
   resetAllPoints,
   wipeAllData,
   updateUserAndPoint,
-  fetchRawTableData
+  fetchRawTableData,
 } from "./DataService";
 import * as Database from "./Dynamo";
 
 describe("Data Service", () => {
-  const mockedFetchDatabase = (overrides) => {
-    jest.spyOn(Database, "fetchAllTableData").mockResolvedValue(
-      {
-        "Items": {
-          "THOR": 3,
-          "TONY STARK": 5,
-          "STEVE ROGERS": 8,
-          "Users": "Point"
-        },
-        error: undefined,
-        ...overrides
-      }
-    );
+  const mockedFetchDatabase = (overrides?: any) => {
+    jest.spyOn(Database, "fetchAllTableData").mockResolvedValue({
+      Items: {
+        THOR: 3,
+        "TONY STARK": 5,
+        "STEVE ROGERS": 8,
+        Users: "Point",
+      },
+      error: undefined,
+      ...overrides,
+    });
   };
 
-  const mockedDatabase = (overrides) =>
-    jest.spyOn(Database, "updateAllTableData").mockResolvedValue(
-      {
-        "Items": {
-          "THOR": 3,
-          "TONY STARK": 5,
-          "STEVE ROGERS": 8,
-          "Users": "Point"
-        },
-        error: undefined,
-        ...overrides
-      }
-    );
+  const mockedDatabase = (overrides?: any) =>
+    jest.spyOn(Database, "updateAllTableData").mockResolvedValue({
+      Items: {
+        THOR: 3,
+        "TONY STARK": 5,
+        "STEVE ROGERS": 8,
+        Users: "Point",
+      },
+      error: undefined,
+      ...overrides,
+    });
 
   beforeEach(() => jest.resetAllMocks());
 
@@ -48,13 +44,13 @@ describe("Data Service", () => {
       await updateUserAndPoint("NEW USER", 13);
 
       const expected = {
-        Items:  {
-            Users: "Point",
-            "NEW USER": 13,
-            THOR: 3,
-            "TONY STARK": 5,
-            "STEVE ROGERS": 8,
-          },
+        Items: {
+          Users: "Point",
+          "NEW USER": 13,
+          THOR: 3,
+          "TONY STARK": 5,
+          "STEVE ROGERS": 8,
+        },
       };
 
       expect(mockDatabase).toHaveBeenLastCalledWith(expected);
@@ -62,17 +58,15 @@ describe("Data Service", () => {
 
     it("Returns an error if the userAndPoint can't be updated", async () => {
       mockedFetchDatabase();
-      mockedDatabase({error: "Error: Failed to Update the Database"});
+      mockedDatabase({ error: "Error: Failed to Update the Database" });
 
       const result = await updateUserAndPoint("NEW USER", 13);
 
       expect(result.error).toEqual("Error: Failed to Update the Database");
       expect(result.Items).not.toContain({ "NEW USER": 13 });
     });
-
-
   });
-  
+
   describe("addNewUser", () => {
     it("Adds a new user in uppercase with 0 score", async () => {
       mockedFetchDatabase();
@@ -81,14 +75,13 @@ describe("Data Service", () => {
       await addNewUser("sPiDeR MaN");
 
       const expectedResult = {
-        Items: 
-          {
-            Users: "Point",
-            "SPIDER MAN": 0,
-            THOR: 3,
-            "TONY STARK": 5,
-            "STEVE ROGERS": 8,
-          },
+        Items: {
+          Users: "Point",
+          "SPIDER MAN": 0,
+          THOR: 3,
+          "TONY STARK": 5,
+          "STEVE ROGERS": 8,
+        },
       };
 
       expect(mockDatabase).toHaveBeenLastCalledWith(expectedResult);
@@ -96,18 +89,17 @@ describe("Data Service", () => {
 
     it("Does NOT add a new user if they already exist", async () => {
       mockedFetchDatabase();
-      mockedDatabase({error: "Error: Name Already Exists"});
+      mockedDatabase({ error: "Error: Name Already Exists" });
 
       const result = await addNewUser("Tony Stark");
 
       const expected = {
-        Items: 
-          {
-            Users: "Point",
-            THOR: 3,
-            "TONY STARK": 5,
-            "STEVE ROGERS": 8,
-          },
+        Items: {
+          Users: "Point",
+          THOR: 3,
+          "TONY STARK": 5,
+          "STEVE ROGERS": 8,
+        },
         error: "Error: Name Already Exists",
       };
 
@@ -116,7 +108,7 @@ describe("Data Service", () => {
 
     it("Returns an error message if database can't be updated", async () => {
       mockedFetchDatabase();
-      mockedDatabase({error: "Could Not Update Database"});
+      mockedDatabase({ error: "Could Not Update Database" });
 
       const result = await addNewUser("sPiDeR MaN");
 
@@ -132,13 +124,12 @@ describe("Data Service", () => {
       await updatePoint("THOR", 8);
 
       const expectedResult = {
-        Items: 
-          {
-            Users: "Point",
-            THOR: 8,
-            "TONY STARK": 5,
-            "STEVE ROGERS": 8,
-          },
+        Items: {
+          Users: "Point",
+          THOR: 8,
+          "TONY STARK": 5,
+          "STEVE ROGERS": 8,
+        },
       };
 
       expect(mockDatabase).toHaveBeenLastCalledWith(expectedResult);
@@ -157,14 +148,14 @@ describe("Data Service", () => {
 
     it("Returns an error message if database can't be updated", async () => {
       mockedFetchDatabase();
-      mockedDatabase({error: "Could Not Update Database"});
+      mockedDatabase({ error: "Could Not Update Database" });
 
       const result = await updatePoint("THOR", 8);
 
       expect(result.error).toEqual("Could Not Update Database");
     });
   });
-  
+
   describe("resetAllPoints", () => {
     it("Sets every players points to 0", async () => {
       mockedFetchDatabase();
@@ -173,13 +164,12 @@ describe("Data Service", () => {
       await resetAllPoints();
 
       const expected = {
-        Items: 
-          {
-            Users: "Point",
-            THOR: 0,
-            "TONY STARK": 0,
-            "STEVE ROGERS": 0,
-          },
+        Items: {
+          Users: "Point",
+          THOR: 0,
+          "TONY STARK": 0,
+          "STEVE ROGERS": 0,
+        },
       };
 
       expect(mockDatabase).toHaveBeenLastCalledWith(expected);
@@ -187,7 +177,7 @@ describe("Data Service", () => {
 
     it("Returns an error message if database can't be updated", async () => {
       mockedFetchDatabase();
-      mockedDatabase({error: "Could Not Update Database"});
+      mockedDatabase({ error: "Could Not Update Database" });
 
       const result = await resetAllPoints();
 
@@ -205,7 +195,7 @@ describe("Data Service", () => {
     });
 
     it("Returns an error message if database can't be updated", async () => {
-      mockedDatabase({error: "Could Not Update Database"});
+      mockedDatabase({ error: "Could Not Update Database" });
 
       const result = await wipeAllData();
 
@@ -214,28 +204,28 @@ describe("Data Service", () => {
   });
 
   describe("fetchRawTableData", () => {
-    it('Gets raw data from database', async () => {
-       mockedFetchDatabase()
+    it("Gets raw data from database", async () => {
+      mockedFetchDatabase();
 
-      const result = await fetchRawTableData()
+      const result = await fetchRawTableData();
 
       expect(result).toEqual({
-        "Items": {
-          "THOR": 3,
+        Items: {
+          THOR: 3,
           "TONY STARK": 5,
           "STEVE ROGERS": 8,
-          "Users": "Point"
+          Users: "Point",
         },
-        error: undefined
+        error: undefined,
       });
-    })
+    });
 
     it("Returns an error message if database can't be reached", async () => {
-      mockedFetchDatabase({error: "Could Not Update Database"});
+      mockedFetchDatabase({ error: "Could Not Update Database" });
 
       const result = await fetchRawTableData();
 
       expect(result.error).toEqual("Could Not Update Database");
-    }); 
-  })
+    });
+  });
 });
