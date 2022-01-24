@@ -1,0 +1,12 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/OperationFman/schatzen.git",
+  "author": "Franklin Moon <42459707+OperationFman@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.2",
+    "socket.io": "^4.4.1"
+  }
+}
