@@ -13,6 +13,7 @@ coverage
 out/
 
 # production
+dist
 build
 
 # misc
@@ -38,3 +39,4 @@ yarn-error.log*
 
 # config stuff
 keys.ts
+.env
